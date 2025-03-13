@@ -7,7 +7,7 @@ const InventoryAlert = () => {
   const { getLowInventoryMedicines, updateInventory } = useMedicine();
   const lowInventoryMedicines = getLowInventoryMedicines();
   
-  if (lowInventoryMedicines.length === 0) {
+  if (!lowInventoryMedicines || lowInventoryMedicines.length === 0) {
     return null;
   }
   
@@ -31,14 +31,14 @@ const InventoryAlert = () => {
               <div className="flex items-center mt-1">
                 <Package size={14} className="text-app-gray mr-1" />
                 <span className="text-xs text-app-gray">
-                  {medicine.inventory.current} of {medicine.type} remaining
+                  {medicine.inventory?.current || 0} of {medicine.type} remaining
                 </span>
               </div>
             </div>
             
             <button
               className="px-3 py-1 text-sm bg-app-blue text-white rounded-full hover:bg-app-dark-blue transition-colors"
-              onClick={() => handleRestock(medicine.id, medicine.inventory.current)}
+              onClick={() => handleRestock(medicine.id, medicine.inventory?.current || 0)}
             >
               Restock
             </button>

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useMedicine } from '@/context/MedicineContext';
@@ -15,19 +15,16 @@ const Home = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { getTodayMedicines, getUpcomingAppointments, selectedDate } = useMedicine();
-  const [todayMedicines, setTodayMedicines] = useState(getTodayMedicines());
-  const [upcomingAppointments, setUpcomingAppointments] = useState(getUpcomingAppointments(7));
   const [showMenu, setShowMenu] = useState(false);
   
-  useEffect(() => {
-    setTodayMedicines(getTodayMedicines());
-  }, [selectedDate, getTodayMedicines]);
+  // Use useMemo to avoid recalculating on every render
+  const todayMedicines = useMemo(() => getTodayMedicines(), [selectedDate, getTodayMedicines]);
+  const upcomingAppointments = useMemo(() => getUpcomingAppointments(7), [getUpcomingAppointments]);
   
-  useEffect(() => {
-    setUpcomingAppointments(getUpcomingAppointments(7));
-  }, [getUpcomingAppointments]);
-  
-  const totalTaken = todayMedicines.filter(m => m.taken).length;
+  const totalTaken = useMemo(() => 
+    todayMedicines.filter(m => m.taken).length, 
+    [todayMedicines]
+  );
   
   const handleAddMedicine = () => {
     navigate('/add-medicine');

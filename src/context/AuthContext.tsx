@@ -34,8 +34,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Check local storage for user data on mount
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
     }
+    // Set loading to false more quickly
     setIsLoading(false);
   }, []);
 
@@ -43,28 +48,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // In a real app, this would call an API
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock user data
-    const userData = { id: '1', email, name: email.split('@')[0] };
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setIsLoading(false);
+    try {
+      // Reduced artificial delay from 1000ms to 300ms
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Mock user data
+      const userData = { id: '1', email, name: email.split('@')[0] };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signup = async (name: string, email: string, password: string) => {
     // In a real app, this would call an API
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock user data
-    const userData = { id: '1', email, name };
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setIsLoading(false);
+    try {
+      // Reduced artificial delay from 1000ms to 300ms
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Mock user data
+      const userData = { id: '1', email, name };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
