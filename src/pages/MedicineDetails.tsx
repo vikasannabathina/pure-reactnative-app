@@ -3,10 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMedicine } from '@/context/MedicineContext';
 import BackButton from '@/components/BackButton';
-import { Check, Clock, Trash2 } from 'lucide-react';
+import { Check, Clock, Trash2, Package } from 'lucide-react';
 import { toast } from 'sonner';
-
-type MedicineType = 'Capsule' | 'Tablet' | 'Drop' | 'Liquid' | 'Injection';
+import { MedicineType } from '@/utils/reminderTypes';
 
 const MedicineDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +19,8 @@ const MedicineDetails = () => {
   const [amount, setAmount] = useState(medicine?.amount || 1);
   const [reminderTime, setReminderTime] = useState(medicine?.reminderTime || '08:00');
   const [selectedDays, setSelectedDays] = useState<string[]>(medicine?.reminderDays || []);
+  const [currentInventory, setCurrentInventory] = useState(medicine?.inventory.current || 30);
+  const [inventoryThreshold, setInventoryThreshold] = useState(medicine?.inventory.threshold || 5);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -42,6 +43,8 @@ const MedicineDetails = () => {
       setAmount(medicine.amount);
       setReminderTime(medicine.reminderTime);
       setSelectedDays(medicine.reminderDays);
+      setCurrentInventory(medicine.inventory.current);
+      setInventoryThreshold(medicine.inventory.threshold);
     }
   }, [medicine]);
   
@@ -83,6 +86,10 @@ const MedicineDetails = () => {
       amount,
       reminderTime,
       reminderDays: selectedDays,
+      inventory: {
+        current: currentInventory,
+        threshold: inventoryThreshold
+      }
     });
     
     toast.success('Medicine updated successfully');
@@ -248,6 +255,47 @@ const MedicineDetails = () => {
                   <span className="text-app-dark-gray">{day}</span>
                 </div>
               ))}
+            </div>
+          </div>
+          
+          {/* Inventory Management Section */}
+          <div className="pt-4 border-t border-app-light-gray">
+            <div className="flex items-center mb-3">
+              <Package size={18} className="text-app-blue mr-2" />
+              <h3 className="text-app-dark-gray font-medium">Inventory Management</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-app-dark-gray mb-1">
+                  Current Inventory
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  placeholder="Current amount"
+                  min={0}
+                  value={currentInventory}
+                  onChange={(e) => setCurrentInventory(parseInt(e.target.value))}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-app-dark-gray mb-1">
+                  Low Inventory Alert Threshold
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  placeholder="Alert threshold"
+                  min={1}
+                  value={inventoryThreshold}
+                  onChange={(e) => setInventoryThreshold(parseInt(e.target.value))}
+                />
+                <p className="text-xs text-app-gray mt-1">
+                  You'll receive an alert when inventory falls below this number
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -3,23 +3,29 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useMedicine } from '@/context/MedicineContext';
-import { Menu, Plus } from 'lucide-react';
+import { Menu, Plus, Calendar } from 'lucide-react';
 import UserAvatar from '@/components/UserAvatar';
 import Calendar from '@/components/Calendar';
 import CircularProgress from '@/components/CircularProgress';
 import MedicineCard from '@/components/MedicineCard';
+import InventoryAlert from '@/components/InventoryAlert';
 import { toast } from 'sonner';
 
 const Home = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { getTodayMedicines, selectedDate } = useMedicine();
+  const { getTodayMedicines, getUpcomingAppointments, selectedDate } = useMedicine();
   const [todayMedicines, setTodayMedicines] = useState(getTodayMedicines());
+  const [upcomingAppointments, setUpcomingAppointments] = useState(getUpcomingAppointments(7));
   const [showMenu, setShowMenu] = useState(false);
   
   useEffect(() => {
     setTodayMedicines(getTodayMedicines());
   }, [selectedDate, getTodayMedicines]);
+  
+  useEffect(() => {
+    setUpcomingAppointments(getUpcomingAppointments(7));
+  }, [getUpcomingAppointments]);
   
   const totalTaken = todayMedicines.filter(m => m.taken).length;
   
@@ -31,6 +37,15 @@ const Home = () => {
     logout();
     toast.success('Logged out successfully');
     navigate('/login');
+  };
+  
+  const formatAppointmentDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
   };
   
   return (
@@ -50,16 +65,65 @@ const Home = () => {
         <div className="absolute top-20 left-4 z-10 bg-white rounded-lg shadow-lg p-4 animate-scale w-48">
           <p className="text-app-dark-gray font-medium mb-2">{user?.name}</p>
           <p className="text-app-gray text-sm mb-4">{user?.email}</p>
-          <button 
-            className="text-app-danger text-sm"
-            onClick={handleLogout}
-          >
-            Log out
-          </button>
+          <div className="space-y-2">
+            <button 
+              className="text-app-blue text-sm block w-full text-left"
+              onClick={() => {
+                setShowMenu(false);
+                navigate('/appointments');
+              }}
+            >
+              Doctor Appointments
+            </button>
+            <button 
+              className="text-app-danger text-sm block w-full text-left"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </div>
         </div>
       )}
       
       <Calendar />
+      
+      {/* Inventory Alert Section */}
+      <InventoryAlert />
+      
+      {/* Upcoming Appointment Section */}
+      {upcomingAppointments.length > 0 && (
+        <div className="card mb-5 animate-fade-in">
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center">
+              <Calendar size={18} className="text-app-blue mr-2" />
+              <h3 className="text-app-dark-gray font-medium">Upcoming Appointments</h3>
+            </div>
+            <button 
+              className="text-xs text-app-blue"
+              onClick={() => navigate('/appointments')}
+            >
+              View all
+            </button>
+          </div>
+          
+          {upcomingAppointments.slice(0, 2).map(appointment => (
+            <div 
+              key={appointment.id}
+              className="flex justify-between items-center p-3 bg-app-light-gray bg-opacity-30 rounded-lg mb-2"
+              onClick={() => navigate(`/appointment/${appointment.id}`)}
+            >
+              <div>
+                <p className="font-medium text-app-dark-gray">{appointment.doctorName}</p>
+                <p className="text-xs text-app-gray">{appointment.specialization}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-app-blue font-medium">{formatAppointmentDate(appointment.date)}</p>
+                <p className="text-xs text-app-gray">{appointment.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       
       <div className="my-6 flex flex-col items-center">
         <CircularProgress 
