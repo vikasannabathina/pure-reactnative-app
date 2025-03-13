@@ -1,5 +1,6 @@
 
 export type MedicineType = 'Capsule' | 'Tablet' | 'Drop' | 'Liquid' | 'Injection';
+export type TimeOfDay = 'Morning' | 'Afternoon' | 'Night';
 
 export type Medicine = {
   id: string;
@@ -9,6 +10,8 @@ export type Medicine = {
   amount: number;
   reminderTime: string;
   reminderDays: string[];
+  // New field for time of day
+  timeOfDay?: TimeOfDay[];
   taken: boolean;
   // Add inventory tracking
   inventory: {

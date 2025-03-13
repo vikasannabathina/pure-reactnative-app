@@ -5,7 +5,7 @@ import { useMedicine } from '@/context/MedicineContext';
 import BackButton from '@/components/BackButton';
 import { Check, Clock, Trash2, Package } from 'lucide-react';
 import { toast } from 'sonner';
-import { MedicineType } from '@/utils/reminderTypes';
+import { MedicineType, TimeOfDay } from '@/utils/reminderTypes';
 
 const MedicineDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +19,7 @@ const MedicineDetails = () => {
   const [amount, setAmount] = useState(medicine?.amount || 1);
   const [reminderTime, setReminderTime] = useState(medicine?.reminderTime || '08:00');
   const [selectedDays, setSelectedDays] = useState<string[]>(medicine?.reminderDays || []);
+  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState<TimeOfDay[]>(medicine?.timeOfDay || []);
   const [currentInventory, setCurrentInventory] = useState(medicine?.inventory.current || 30);
   const [inventoryThreshold, setInventoryThreshold] = useState(medicine?.inventory.threshold || 5);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -43,6 +44,7 @@ const MedicineDetails = () => {
       setAmount(medicine.amount);
       setReminderTime(medicine.reminderTime);
       setSelectedDays(medicine.reminderDays);
+      setSelectedTimeOfDay(medicine.timeOfDay || []);
       setCurrentInventory(medicine.inventory.current);
       setInventoryThreshold(medicine.inventory.threshold);
     }
@@ -53,6 +55,14 @@ const MedicineDetails = () => {
       setSelectedDays(selectedDays.filter(d => d !== day));
     } else {
       setSelectedDays([...selectedDays, day]);
+    }
+  };
+  
+  const handleSelectTimeOfDay = (time: TimeOfDay) => {
+    if (selectedTimeOfDay.includes(time)) {
+      setSelectedTimeOfDay(selectedTimeOfDay.filter(t => t !== time));
+    } else {
+      setSelectedTimeOfDay([...selectedTimeOfDay, time]);
     }
   };
   
@@ -79,6 +89,11 @@ const MedicineDetails = () => {
       return;
     }
     
+    if (selectedTimeOfDay.length === 0) {
+      toast.error('Please select at least one time of day (Morning, Afternoon, or Night)');
+      return;
+    }
+    
     updateMedicine(id, {
       name,
       type,
@@ -86,6 +101,7 @@ const MedicineDetails = () => {
       amount,
       reminderTime,
       reminderDays: selectedDays,
+      timeOfDay: selectedTimeOfDay,
       inventory: {
         current: currentInventory,
         threshold: inventoryThreshold
@@ -105,6 +121,7 @@ const MedicineDetails = () => {
   };
   
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const timesOfDay: TimeOfDay[] = ['Morning', 'Afternoon', 'Night'];
   const types: MedicineType[] = ['Capsule', 'Tablet', 'Drop', 'Liquid', 'Injection'];
   
   if (!medicine) return null;
@@ -233,6 +250,29 @@ const MedicineDetails = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+          
+          {/* Time of Day Selection */}
+          <div>
+            <label className="block text-sm font-medium text-app-dark-gray mb-1">Time of Day*</label>
+            <div className="space-y-2">
+              {timesOfDay.map((time) => (
+                <div
+                  key={time}
+                  className={`flex items-center p-3 rounded-lg border ${
+                    selectedTimeOfDay.includes(time) ? 'border-app-blue bg-app-light-blue' : 'border-app-light-gray'
+                  } transition-colors`}
+                  onClick={() => handleSelectTimeOfDay(time)}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    selectedTimeOfDay.includes(time) ? 'bg-app-blue' : 'bg-app-light-gray'
+                  } mr-3 transition-colors`}>
+                    {selectedTimeOfDay.includes(time) && <Check size={14} className="text-white" />}
+                  </div>
+                  <span className="text-app-dark-gray">{time}</span>
+                </div>
+              ))}
             </div>
           </div>
           

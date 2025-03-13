@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMedicine } from '@/context/MedicineContext';
-import { MedicineType } from '@/utils/reminderTypes';
+import { MedicineType, TimeOfDay } from '@/utils/reminderTypes';
 import BackButton from '@/components/BackButton';
 import { Check, Clock, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,6 +17,7 @@ const AddMedicine = () => {
   const [amount, setAmount] = useState(1);
   const [reminderTime, setReminderTime] = useState('08:00');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState<TimeOfDay[]>([]);
   const [currentInventory, setCurrentInventory] = useState(30);
   const [inventoryThreshold, setInventoryThreshold] = useState(5);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -26,6 +28,14 @@ const AddMedicine = () => {
       setSelectedDays(selectedDays.filter(d => d !== day));
     } else {
       setSelectedDays([...selectedDays, day]);
+    }
+  };
+  
+  const handleSelectTimeOfDay = (time: TimeOfDay) => {
+    if (selectedTimeOfDay.includes(time)) {
+      setSelectedTimeOfDay(selectedTimeOfDay.filter(t => t !== time));
+    } else {
+      setSelectedTimeOfDay([...selectedTimeOfDay, time]);
     }
   };
   
@@ -50,6 +60,11 @@ const AddMedicine = () => {
       return;
     }
     
+    if (selectedTimeOfDay.length === 0) {
+      toast.error('Please select at least one time of day (Morning, Afternoon, or Night)');
+      return;
+    }
+    
     addMedicine({
       name,
       type,
@@ -57,6 +72,7 @@ const AddMedicine = () => {
       amount,
       reminderTime,
       reminderDays: selectedDays,
+      timeOfDay: selectedTimeOfDay,
       inventory: {
         current: currentInventory,
         threshold: inventoryThreshold
@@ -68,6 +84,7 @@ const AddMedicine = () => {
   };
   
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const timesOfDay: TimeOfDay[] = ['Morning', 'Afternoon', 'Night'];
   const types: MedicineType[] = ['Capsule', 'Tablet', 'Drop', 'Liquid', 'Injection'];
   
   return (
@@ -194,6 +211,29 @@ const AddMedicine = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+          
+          {/* Time of Day Selection */}
+          <div>
+            <label className="block text-sm font-medium text-app-dark-gray mb-1">Time of Day*</label>
+            <div className="space-y-2">
+              {timesOfDay.map((time) => (
+                <div
+                  key={time}
+                  className={`flex items-center p-3 rounded-lg border ${
+                    selectedTimeOfDay.includes(time) ? 'border-app-blue bg-app-light-blue' : 'border-app-light-gray'
+                  } transition-colors`}
+                  onClick={() => handleSelectTimeOfDay(time)}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    selectedTimeOfDay.includes(time) ? 'bg-app-blue' : 'bg-app-light-gray'
+                  } mr-3 transition-colors`}>
+                    {selectedTimeOfDay.includes(time) && <Check size={14} className="text-white" />}
+                  </div>
+                  <span className="text-app-dark-gray">{time}</span>
+                </div>
+              ))}
             </div>
           </div>
           

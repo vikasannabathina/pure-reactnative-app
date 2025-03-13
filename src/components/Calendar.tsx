@@ -19,17 +19,38 @@ const Calendar = () => {
 
   // Function to generate week days for the provided start date
   const generateWeekDays = (startDate: Date) => {
-    return Array.from({ length: 7 }, (_, i) => {
+    const result = Array.from({ length: 7 }, (_, i) => {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       return date;
     });
+    return result;
   };
 
   React.useEffect(() => {
-    // Initial generation of days
-    setDays(generateWeekDays(new Date()));
+    // Initially generate days based on current date
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust to get Monday
+    startOfWeek.setDate(diff);
+    setDays(generateWeekDays(startOfWeek));
   }, []);
+
+  // Update days when selectedDate changes (from the calendar popup)
+  React.useEffect(() => {
+    if (selectedDate) {
+      // Get the Monday of the selected date's week
+      const day = selectedDate.getDay();
+      const diff = selectedDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust to get Monday
+      const startOfWeek = new Date(selectedDate);
+      startOfWeek.setDate(diff);
+      setDays(generateWeekDays(startOfWeek));
+      
+      // Also update the current month view
+      setCurrentMonth(new Date(selectedDate));
+    }
+  }, [selectedDate]);
 
   const isSelected = (date: Date) => {
     return date.toDateString() === selectedDate.toDateString();
@@ -42,16 +63,32 @@ const Calendar = () => {
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     const newMonth = new Date(currentMonth);
-    if (direction === 'prev') {
-      newMonth.setMonth(newMonth.getMonth() - 1);
-    } else {
-      newMonth.setMonth(newMonth.getMonth() + 1);
-    }
-    setCurrentMonth(newMonth);
     
-    // Update the visible days based on the new month
-    const firstDayOfMonth = new Date(newMonth.getFullYear(), newMonth.getMonth(), 1);
-    setDays(generateWeekDays(firstDayOfMonth));
+    if (direction === 'prev') {
+      // Go to previous week
+      const firstDay = days[0];
+      const prevWeekStart = new Date(firstDay);
+      prevWeekStart.setDate(firstDay.getDate() - 7);
+      setDays(generateWeekDays(prevWeekStart));
+      
+      // Update current month if we cross month boundary
+      if (prevWeekStart.getMonth() !== currentMonth.getMonth()) {
+        newMonth.setMonth(newMonth.getMonth() - 1);
+        setCurrentMonth(newMonth);
+      }
+    } else {
+      // Go to next week
+      const lastDay = days[6];
+      const nextWeekStart = new Date(lastDay);
+      nextWeekStart.setDate(lastDay.getDate() + 1);
+      setDays(generateWeekDays(nextWeekStart));
+      
+      // Update current month if we cross month boundary
+      if (nextWeekStart.getMonth() !== currentMonth.getMonth()) {
+        newMonth.setMonth(newMonth.getMonth() + 1);
+        setCurrentMonth(newMonth);
+      }
+    }
   };
 
   // Get the month name for display
@@ -83,7 +120,11 @@ const Calendar = () => {
             <CalendarUI
               mode="single"
               selected={selectedDate}
-              onSelect={handleSelectDate}
+              onSelect={(date) => {
+                if (date) {
+                  handleSelectDate(date);
+                }
+              }}
               month={currentMonth}
               onMonthChange={setCurrentMonth}
               initialFocus
