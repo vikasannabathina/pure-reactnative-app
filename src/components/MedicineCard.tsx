@@ -2,7 +2,8 @@
 import React from 'react';
 import { Clock, Check, Pill, Edit2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Medicine, useMedicine } from '@/context/MedicineContext';
+import { useMedicine } from '@/context/MedicineContext';
+import { Medicine } from '@/utils/reminderTypes';
 
 type MedicineCardProps = {
   medicine: Medicine;

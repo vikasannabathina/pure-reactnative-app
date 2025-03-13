@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useMedicine } from '@/context/MedicineContext';
-import { Menu, Plus, Calendar } from 'lucide-react';
+import { Menu, Plus, Calendar as CalendarIcon } from 'lucide-react';
 import UserAvatar from '@/components/UserAvatar';
 import Calendar from '@/components/Calendar';
 import CircularProgress from '@/components/CircularProgress';
@@ -95,7 +95,7 @@ const Home = () => {
         <div className="card mb-5 animate-fade-in">
           <div className="flex justify-between items-center mb-3">
             <div className="flex items-center">
-              <Calendar size={18} className="text-app-blue mr-2" />
+              <CalendarIcon size={18} className="text-app-blue mr-2" />
               <h3 className="text-app-dark-gray font-medium">Upcoming Appointments</h3>
             </div>
             <button 

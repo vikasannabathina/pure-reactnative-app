@@ -1,12 +1,10 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMedicine } from '@/context/MedicineContext';
+import { MedicineType } from '@/utils/reminderTypes';
 import BackButton from '@/components/BackButton';
 import { Check, Clock, X } from 'lucide-react';
 import { toast } from 'sonner';
-
-type MedicineType = 'Capsule' | 'Tablet' | 'Drop' | 'Liquid' | 'Injection';
 
 const AddMedicine = () => {
   const navigate = useNavigate();
@@ -18,6 +16,8 @@ const AddMedicine = () => {
   const [amount, setAmount] = useState(1);
   const [reminderTime, setReminderTime] = useState('08:00');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [currentInventory, setCurrentInventory] = useState(30);
+  const [inventoryThreshold, setInventoryThreshold] = useState(5);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
@@ -57,6 +57,10 @@ const AddMedicine = () => {
       amount,
       reminderTime,
       reminderDays: selectedDays,
+      inventory: {
+        current: currentInventory,
+        threshold: inventoryThreshold
+      }
     });
     
     toast.success('Medicine added successfully');
@@ -213,6 +217,37 @@ const AddMedicine = () => {
                 </div>
               ))}
             </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-app-dark-gray mb-1">
+              Current Inventory
+            </label>
+            <input
+              type="number"
+              className="input-field"
+              placeholder="Current amount"
+              min={0}
+              value={currentInventory}
+              onChange={(e) => setCurrentInventory(parseInt(e.target.value))}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-app-dark-gray mb-1">
+              Low Inventory Alert Threshold
+            </label>
+            <input
+              type="number"
+              className="input-field"
+              placeholder="Alert threshold"
+              min={1}
+              value={inventoryThreshold}
+              onChange={(e) => setInventoryThreshold(parseInt(e.target.value))}
+            />
+            <p className="text-xs text-app-gray mt-1">
+              You'll receive an alert when inventory falls below this number
+            </p>
           </div>
         </div>
       </div>
