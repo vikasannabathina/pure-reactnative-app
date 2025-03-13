@@ -17,15 +17,18 @@ const Calendar = () => {
   const [showFullCalendar, setShowFullCalendar] = React.useState(false);
   const [currentMonth, setCurrentMonth] = React.useState<Date>(new Date());
 
-  React.useEffect(() => {
-    // Generate 7 days starting from today
-    const today = new Date();
-    const weekDays = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(today.getDate() + i);
+  // Function to generate week days for the provided start date
+  const generateWeekDays = (startDate: Date) => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
       return date;
     });
-    setDays(weekDays);
+  };
+
+  React.useEffect(() => {
+    // Initial generation of days
+    setDays(generateWeekDays(new Date()));
   }, []);
 
   const isSelected = (date: Date) => {
@@ -45,10 +48,14 @@ const Calendar = () => {
       newMonth.setMonth(newMonth.getMonth() + 1);
     }
     setCurrentMonth(newMonth);
+    
+    // Update the visible days based on the new month
+    const firstDayOfMonth = new Date(newMonth.getFullYear(), newMonth.getMonth(), 1);
+    setDays(generateWeekDays(firstDayOfMonth));
   };
 
   // Get the month name for display
-  const monthDisplay = selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
+  const monthDisplay = format(currentMonth, 'MMMM yyyy').toUpperCase();
 
   return (
     <div className="w-full card animate-fade-in">

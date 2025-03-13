@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { MedicineProvider } from "./context/MedicineContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -24,24 +25,26 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <MedicineProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/add-medicine" element={<AddMedicine />} />
-              <Route path="/medicine/:id" element={<MedicineDetails />} />
-              <Route path="/appointments" element={<Appointments />} />
-              <Route path="/add-appointment" element={<AddAppointment />} />
-              <Route path="/appointment/:id" element={<AppointmentDetails />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/add-medicine" element={<AddMedicine />} />
+                <Route path="/medicine/:id" element={<MedicineDetails />} />
+                <Route path="/appointments" element={<Appointments />} />
+                <Route path="/add-appointment" element={<AddAppointment />} />
+                <Route path="/appointment/:id" element={<AppointmentDetails />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </ThemeProvider>
       </MedicineProvider>
     </AuthProvider>
   </QueryClientProvider>

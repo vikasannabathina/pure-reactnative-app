@@ -3,9 +3,10 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useMedicine } from '@/context/MedicineContext';
-import { Menu, Plus, Calendar as CalendarIcon } from 'lucide-react';
+import { Menu, Plus, Calendar as CalendarIcon, ShoppingBag, User, Settings } from 'lucide-react';
 import UserAvatar from '@/components/UserAvatar';
 import Calendar from '@/components/Calendar';
+import ThemeSelector from '@/components/ThemeSelector';
 import CircularProgress from '@/components/CircularProgress';
 import MedicineCard from '@/components/MedicineCard';
 import InventoryAlert from '@/components/InventoryAlert';
@@ -55,29 +56,64 @@ const Home = () => {
           <Menu size={24} className="text-app-dark-gray" />
         </button>
         
-        <UserAvatar />
+        <div className="flex items-center gap-3">
+          <ThemeSelector />
+          <UserAvatar onClick={() => setShowMenu(!showMenu)} />
+        </div>
       </header>
       
       {showMenu && (
         <div className="absolute top-20 left-4 z-10 bg-white rounded-lg shadow-lg p-4 animate-scale w-48">
-          <p className="text-app-dark-gray font-medium mb-2">{user?.name}</p>
-          <p className="text-app-gray text-sm mb-4">{user?.email}</p>
-          <div className="space-y-2">
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+            <UserAvatar size="sm" />
+            <div>
+              <p className="text-app-dark-gray font-medium text-sm">{user?.name}</p>
+              <p className="text-app-gray text-xs">{user?.email}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
             <button 
-              className="text-app-blue text-sm block w-full text-left"
+              className="flex items-center text-app-dark-gray text-sm w-full hover:text-app-blue transition-colors"
               onClick={() => {
                 setShowMenu(false);
                 navigate('/appointments');
               }}
             >
+              <CalendarIcon size={16} className="mr-2" />
               Doctor Appointments
             </button>
+            
             <button 
-              className="text-app-danger text-sm block w-full text-left"
-              onClick={handleLogout}
+              className="flex items-center text-app-dark-gray text-sm w-full hover:text-app-blue transition-colors"
+              onClick={() => {
+                setShowMenu(false);
+                toast.info('Medicine ordering coming soon!');
+              }}
             >
-              Log out
+              <ShoppingBag size={16} className="mr-2" />
+              Order Medicines
             </button>
+            
+            <button 
+              className="flex items-center text-app-dark-gray text-sm w-full hover:text-app-blue transition-colors"
+              onClick={() => {
+                setShowMenu(false);
+                toast.info('Settings page coming soon!');
+              }}
+            >
+              <Settings size={16} className="mr-2" />
+              Settings
+            </button>
+            
+            <div className="pt-2 border-t">
+              <button 
+                className="flex items-center text-app-danger text-sm w-full"
+                onClick={handleLogout}
+              >
+                Log out
+              </button>
+            </div>
           </div>
         </div>
       )}

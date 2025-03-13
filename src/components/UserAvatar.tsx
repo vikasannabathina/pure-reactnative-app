@@ -5,9 +5,10 @@ import { useAuth } from '@/context/AuthContext';
 type UserAvatarProps = {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  onClick?: () => void;
 };
 
-const UserAvatar = ({ size = 'md', className = '' }: UserAvatarProps) => {
+const UserAvatar = ({ size = 'md', className = '', onClick }: UserAvatarProps) => {
   const { user } = useAuth();
   
   const sizeClasses = {
@@ -27,7 +28,10 @@ const UserAvatar = ({ size = 'md', className = '' }: UserAvatarProps) => {
   };
 
   return (
-    <div className={`rounded-full bg-app-blue flex items-center justify-center text-white font-medium ${sizeClasses[size]} ${className}`}>
+    <div 
+      className={`rounded-full bg-app-blue flex items-center justify-center text-white font-medium ${sizeClasses[size]} ${className} ${onClick ? 'cursor-pointer hover:opacity-90' : ''}`}
+      onClick={onClick}
+    >
       {getInitials()}
     </div>
   );
