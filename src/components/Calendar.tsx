@@ -147,7 +147,7 @@ const Calendar = () => {
         {days.map((day, index) => (
           <div 
             key={index} 
-            className="flex flex-col items-center"
+            className="flex flex-col items-center cursor-pointer"
             onClick={() => handleSelectDate(day)}
           >
             <div className={`calendar-day ${isSelected(day) ? 'selected' : ''}`}>

@@ -22,6 +22,7 @@ const MedicineDetails = () => {
   const [selectedTimeOfDay, setSelectedTimeOfDay] = useState<TimeOfDay[]>(medicine?.timeOfDay || []);
   const [currentInventory, setCurrentInventory] = useState(medicine?.inventory.current || 30);
   const [inventoryThreshold, setInventoryThreshold] = useState(medicine?.inventory.threshold || 5);
+  const [initialPillCount, setInitialPillCount] = useState(medicine?.initialPillCount || 30);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -47,6 +48,7 @@ const MedicineDetails = () => {
       setSelectedTimeOfDay(medicine.timeOfDay || []);
       setCurrentInventory(medicine.inventory.current);
       setInventoryThreshold(medicine.inventory.threshold);
+      setInitialPillCount(medicine.initialPillCount || 30);
     }
   }, [medicine]);
   
@@ -94,6 +96,15 @@ const MedicineDetails = () => {
       return;
     }
     
+    // Prepare pill counts object
+    const pillCountsByDate = medicine?.pillCountsByDate || {};
+    
+    // If pill count has changed, update for the current date
+    if (medicine?.initialPillCount !== initialPillCount) {
+      const today = new Date().toISOString().split('T')[0];
+      pillCountsByDate[today] = initialPillCount;
+    }
+    
     updateMedicine(id, {
       name,
       type,
@@ -105,7 +116,9 @@ const MedicineDetails = () => {
       inventory: {
         current: currentInventory,
         threshold: inventoryThreshold
-      }
+      },
+      initialPillCount,
+      pillCountsByDate
     });
     
     toast.success('Medicine updated successfully');
@@ -296,6 +309,24 @@ const MedicineDetails = () => {
                 </div>
               ))}
             </div>
+          </div>
+          
+          {/* Initial Pill Count Section */}
+          <div>
+            <label className="block text-sm font-medium text-app-dark-gray mb-1">
+              Initial Pill Count*
+            </label>
+            <input
+              type="number"
+              className="input-field"
+              placeholder="Total pills for course"
+              min={1}
+              value={initialPillCount}
+              onChange={(e) => setInitialPillCount(parseInt(e.target.value))}
+            />
+            <p className="text-xs text-app-gray mt-1">
+              This is the total number of pills for the complete course
+            </p>
           </div>
           
           {/* Inventory Management Section */}

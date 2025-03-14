@@ -20,6 +20,7 @@ const AddMedicine = () => {
   const [selectedTimeOfDay, setSelectedTimeOfDay] = useState<TimeOfDay[]>([]);
   const [currentInventory, setCurrentInventory] = useState(30);
   const [inventoryThreshold, setInventoryThreshold] = useState(5);
+  const [initialPillCount, setInitialPillCount] = useState(30);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
@@ -65,6 +66,14 @@ const AddMedicine = () => {
       return;
     }
     
+    // Create an initial pill count by date record
+    const today = new Date();
+    const pillCountsByDate: Record<string, number> = {};
+    
+    // Set initial pill count for today
+    const dateKey = today.toISOString().split('T')[0];
+    pillCountsByDate[dateKey] = initialPillCount;
+    
     addMedicine({
       name,
       type,
@@ -76,7 +85,9 @@ const AddMedicine = () => {
       inventory: {
         current: currentInventory,
         threshold: inventoryThreshold
-      }
+      },
+      pillCountsByDate,
+      initialPillCount
     });
     
     toast.success('Medicine added successfully');
@@ -257,6 +268,24 @@ const AddMedicine = () => {
                 </div>
               ))}
             </div>
+          </div>
+          
+          {/* Initial Pill Count Section */}
+          <div>
+            <label className="block text-sm font-medium text-app-dark-gray mb-1">
+              Initial Pill Count*
+            </label>
+            <input
+              type="number"
+              className="input-field"
+              placeholder="Total pills for course"
+              min={1}
+              value={initialPillCount}
+              onChange={(e) => setInitialPillCount(parseInt(e.target.value))}
+            />
+            <p className="text-xs text-app-gray mt-1">
+              This is the total number of pills for the complete course
+            </p>
           </div>
           
           <div>

@@ -18,6 +18,10 @@ export type Medicine = {
     current: number;
     threshold: number;
   };
+  // New field for tracking pills by date
+  pillCountsByDate?: Record<string, number>;
+  // New field for initial pill count (total pills for the course)
+  initialPillCount?: number;
 };
 
 export type Appointment = {

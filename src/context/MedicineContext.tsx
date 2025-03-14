@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { AlertCircle, Bell, Calendar, PackageX } from 'lucide-react';
@@ -60,7 +59,11 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
           inventory: {
             current: 15,
             threshold: 5
-          }
+          },
+          pillCountsByDate: {
+            [new Date().toISOString().split('T')[0]]: 15
+          },
+          initialPillCount: 30
         },
         {
           id: '2',
@@ -74,7 +77,11 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
           inventory: {
             current: 7,
             threshold: 10
-          }
+          },
+          pillCountsByDate: {
+            [new Date().toISOString().split('T')[0]]: 7
+          },
+          initialPillCount: 30
         },
       ];
       
@@ -258,7 +265,11 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
       inventory: medicine.inventory || {
         current: 30, // Default 30 days supply
         threshold: 5
-      }
+      },
+      pillCountsByDate: medicine.pillCountsByDate || {
+        [new Date().toISOString().split('T')[0]]: medicine.initialPillCount || 30
+      },
+      initialPillCount: medicine.initialPillCount || 30
     };
     
     setMedicines(prev => [...prev, newMedicine]);
@@ -282,9 +293,27 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
     
     // Update medicine status to taken
     setMedicines(prev => 
-      prev.map(medicine => 
-        medicine.id === id ? { ...medicine, taken: true } : medicine
-      )
+      prev.map(medicine => {
+        if (medicine.id === id) {
+          // Get the current date in YYYY-MM-DD format
+          const dateKey = selectedDate.toISOString().split('T')[0];
+          
+          // Update or initialize pillCountsByDate for this date
+          const updatedPillCounts = medicine.pillCountsByDate || {};
+          const currentCount = updatedPillCounts[dateKey] || 0;
+          
+          // Decrease pill count for this day
+          const newCount = Math.max(0, currentCount - medicine.amount);
+          updatedPillCounts[dateKey] = newCount;
+          
+          return { 
+            ...medicine, 
+            taken: true,
+            pillCountsByDate: updatedPillCounts 
+          };
+        }
+        return medicine;
+      })
     );
     
     // Decrease inventory when taking medicine
@@ -323,7 +352,10 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
 
   const getTodayMedicines = () => {
     const today = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-    return medicines.filter(medicine => medicine.reminderDays.includes(today));
+    return medicines.filter(medicine => 
+      medicine.reminderDays.includes(today) && 
+      (medicine.pillCountsByDate?.[selectedDate.toISOString().split('T')[0]] ?? 0) > 0
+    );
   };
 
   const getMedicineById = (id: string) => {
